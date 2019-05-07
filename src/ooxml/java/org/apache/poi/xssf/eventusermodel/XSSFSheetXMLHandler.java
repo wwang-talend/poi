@@ -25,6 +25,7 @@ import java.util.Queue;
 import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.RichTextString;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.util.POILogFactory;
 import org.apache.poi.util.POILogger;
@@ -360,10 +361,16 @@ public class XSSFSheetXMLHandler extends DefaultHandler {
 
                case NUMBER:
                    String n = value.toString();
-                   if (this.formatString != null && n.length() > 0)
-                       thisStr = formatter.formatRawCellContents(Double.parseDouble(n), this.formatIndex, this.formatString);
-                   else
+                   if (this.formatString != null && n.length() > 0) {
+                       if(!DateUtil.isADateFormat(this.formatIndex, this.formatString)) {
+                           java.text.DecimalFormat df = new java.text.DecimalFormat("#.####################################");
+                           thisStr = df.format(Double.parseDouble(n));
+                       }else{
+                           thisStr = formatter.formatRawCellContents(Double.parseDouble(n), this.formatIndex, this.formatString);
+                       }
+                   } else {
                        thisStr = n;
+                   }
                    break;
 
                default:
